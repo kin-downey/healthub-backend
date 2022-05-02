@@ -1,0 +1,20 @@
+{% block subject %}
+Healthub 本登録のご案内
+{% endblock subject %}
+
+{% block text_body %}
+{{ name }}様
+
+Healthubをご利用いたただきまして，誠にありがとうございます．
+
+以下のリンクから本登録を完了してください
+{{ protocol }}://{{ domain }}/{{ url|safe }}
+
+本登録頂くことで，Healthubの全ての機能がご利用いただけます．
+
+
+=============================================
+発行元：株式会社 Healthub
+=============================================
+
+{% endblock text_body %}

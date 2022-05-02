@@ -27,7 +27,7 @@ services:
       start_period: 3s
       timeout: 20s
     volumes:
-        - ./mysql/db:/var/lib/
+        - ./mysql/db:/var/lib/mysql
     ports:
       - 3306:3306
     env_file:

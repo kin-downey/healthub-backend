@@ -16,6 +16,7 @@ load_dotenv(override=True)
 import os
 import pymysql
 pymysql.install_as_MySQLdb()
+from datetime import timedelta
 
 
 
@@ -44,6 +45,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -57,6 +62,29 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'backend.urls'
+
+REST_FRAMEWORK = {
+    # 認証が必要
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    # JWT認証
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ]
+}
+
+SIMPLE_JWT = {
+    # アクセストークン(1時間)
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    # リフレッシュトークン(3日)
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=3),
+    # 認証タイプ
+    'AUTH_HEADER_TYPES': ('JWT', ),
+    'BLACKLIST_AFTER_ROTATION': False,
+    # 認証トークン
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken', )
+}
 
 TEMPLATES = [
     {
@@ -109,6 +137,66 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+AUTH_USER_MODEL = 'accounts.UserAccount'
+
+# ローカル確認用
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# 本番環境用
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+DJOSER = {
+    # メールアドレスでログイン
+    'LOGIN_FIELD': 'email',
+    # アカウント本登録メール
+    'SEND_ACTIVATION_EMAIL': True,
+    # アカウント本登録完了メール
+    'SEND_CONFIRMATION_EMAIL': True,
+    # メールアドレス変更完了メール
+    'USERNAME_CHANGED_EMAIL_CONFIRMATION': True,
+    # パスワード変更完了メール
+    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
+    # アカウント登録時に確認用パスワード必須
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    # メールアドレス変更時に確認用メールアドレス必須
+    'SET_USERNAME_RETYPE': True,
+    # パスワード変更時に確認用パスワード必須
+    'SET_PASSWORD_RETYPE': True,
+    # アカウント本登録用URL
+    'ACTIVATION_URL': 'activate/{uid}/{token}',
+    # メールアドレスリセット完了用URL
+    'USERNAME_RESET_CONFIRM_URL': 'email/reset/confirm/{uid}/{token}',
+    # パスワードリセット完了用URL
+    'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
+    # カスタムユーザー用シリアライザー
+    'SERIALIZERS': {
+        'user_create': 'accounts.serializers.UserSerializer',
+        'user': 'accounts.serializers.UserSerializer',
+        'current_user': 'accounts.serializers.UserSerializer',
+    },
+    'EMAIL': {
+        # アカウント本登録
+        'activation': 'accounts.email.ActivationEmail',
+        # アカウント本登録完了
+        'confirmation': 'accounts.email.ConfirmationEmail',
+        # パスワードリセット
+        'password_reset': 'accounts.email.PasswordResetEmail',
+        # パスワードリセット完了
+        'password_changed_confirmation': 'accounts.email.PasswordChangedConfirmationEmail',
+        # メールアドレスリセット
+        'username_reset': 'accounts.email.UsernameResetEmail',
+        # メールアドレスリセット完了
+        'username_changed_confirmation': 'accounts.email.UsernameChangedConfirmationEmail',
+    },
+}
+
 
 
 # Internationalization
